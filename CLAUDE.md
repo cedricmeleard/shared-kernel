@@ -57,5 +57,5 @@ shared-kernel/
 ## Coding Rules & Conventions
 
 - All projects target `net10.0` with `<ImplicitUsings>enable</ImplicitUsings>` and `<Nullable>enable</Nullable>`.
-- Versioning and package metadata are centralized in `Directory.Build.props` and `Directory.Packages.props`.
+- Versioning is automated via GitHub Actions using SemVer. Include `semver:major`, `semver:minor`, or `semver:patch` in commit messages when pushing to `main` to control release version bumps.
 - Always run `dotnet test SharedKernel.slnx` before committing changes.
