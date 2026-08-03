@@ -17,7 +17,7 @@ dotnet pack SharedKernel.slnx --configuration Release --output ./nupkgs
 
 ## Architecture & Project Structure
 
-This repository provides reusable, zero-dependency or lightweight .NET 10 building blocks shared across domain applications (**BarbecueRoad**, **Patientelle**, etc.).
+This repository provides reusable, zero-dependency or lightweight .NET 10 building blocks shared across .NET domain applications.
 
 ```text
 shared-kernel/

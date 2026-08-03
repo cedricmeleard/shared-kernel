@@ -1,6 +1,6 @@
 # SharedKernel
 
-Reusable .NET 10 Shared Kernel building blocks for **BarbecueRoad** and **Patientelle**.
+Reusable .NET 10 Shared Kernel building blocks.
 
 ## 📦 Published Packages
 
