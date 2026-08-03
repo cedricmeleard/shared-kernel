@@ -16,27 +16,17 @@ dotnet build SharedKernel.slnx
 dotnet pack SharedKernel.slnx --configuration Release --output ./nupkgs
 ```
 
-## 🏷️ Versioning & Release Workflow (SemVer)
+## 🏷️ Versioning & Release Workflow (SemVer & Pull Requests)
 
-NuGet package versions are automatically incremented on push to `main` using Semantic Versioning (`MAJOR.MINOR.PATCH`, e.g. `1.0.1` -> `1.1.0` -> `2.0.0`).
+The `main` branch is protected and requires passing CI status checks (`build-and-test`) before merging.
 
-Include one of the following parameters in your commit message to control the version increment:
-
-- **`semver:major`**: Increments the **MAJOR** version (breaking changes, e.g. `1.2.3` ➔ `2.0.0`).
-  ```bash
-  git commit -m "feat!: breaking change in Messaging abstractions semver:major"
-  ```
-- **`semver:minor`**: Increments the **MINOR** version (new backward-compatible features, e.g. `1.2.3` ➔ `1.3.0`).
-  ```bash
-  git commit -m "feat: add new ROP combinator to Results semver:minor"
-  ```
-- **Default / `semver:patch`**: Increments the **PATCH** version (bug fixes & minor tweaks, e.g. `1.2.3` ➔ `1.2.4`).
-  ```bash
-  git commit -m "fix: resolve null check in UserContext"
-  ```
-
-Upon push to `main`, GitHub Actions automatically:
-1. Calculates the next SemVer version.
-2. Builds, tests, and packs `.nupkg` packages.
-3. Publishes `.nupkg` files to **GitHub Packages**.
-4. Creates a Git tag (e.g. `v1.0.1`) and GitHub Release.
+### Workflow:
+1. Create a feature branch and open a **Pull Request** targeting `main`.
+2. CI builds, runs all unit tests, and validates package creation on the PR.
+3. Include `semver:major`, `semver:minor`, or `semver:patch` in your **PR Title**, **PR Description**, or **Merge Commit Message**:
+   - **`semver:major`**: Increments the **MAJOR** version (breaking changes, e.g. `1.1.0` ➔ `2.0.0`).
+   - **`semver:minor`**: Increments the **MINOR** version (new features, e.g. `1.1.0` ➔ `1.2.0`).
+   - **Default / `semver:patch`**: Increments the **PATCH** version (fixes, e.g. `1.1.0` ➔ `1.1.1`).
+4. When the PR is merged into `main`, GitHub Actions automatically:
+   - Publishes `.nupkg` packages to **GitHub Packages**.
+   - Tags the merge commit (e.g. `v1.2.0`) and creates an official GitHub Release.

@@ -1,15 +1,18 @@
-name: Build & Publish SharedKernel NuGet Packages
+name: Build, Test & Publish SharedKernel
 
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  build-and-publish:
+  build-and-test:
     runs-on: ubuntu-latest
     permissions:
       contents: write
       packages: write
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -39,7 +42,8 @@ jobs:
           MINOR=${MINOR:-0}
           PATCH=${PATCH:-0}
           
-          COMMIT_MSG="${{ github.event.head_commit.message }}"
+          # Inspect PR title, body, or commit message
+          COMMIT_MSG="${{ github.event.head_commit.message || github.event.pull_request.title || github.event.pull_request.body }}"
           
           if [[ "$COMMIT_MSG" == *"semver:major"* ]]; then
             MAJOR=$((MAJOR + 1))
@@ -57,7 +61,7 @@ jobs:
           
           NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
           echo "Current latest tag: $LATEST_TAG"
-          echo "Commit message: $COMMIT_MSG"
+          echo "Commit / PR Message: $COMMIT_MSG"
           echo "Increment type: $BUMP_TYPE"
           echo "Calculated new version: $NEW_VERSION"
           
@@ -76,10 +80,12 @@ jobs:
       - name: Pack NuGet Packages
         run: dotnet pack SharedKernel.slnx --configuration Release --output ./nupkgs -p:Version=${{ env.NEW_VERSION }}
 
-      - name: Publish to GitHub Packages
+      - name: Publish to GitHub Packages (main branch only)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: dotnet nuget push "./nupkgs/*.nupkg" --source "https://nuget.pkg.github.com/cedricmeleard/index.json" --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
 
-      - name: Create Git Tag & Release
+      - name: Create Git Tag & Release (main branch only)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
