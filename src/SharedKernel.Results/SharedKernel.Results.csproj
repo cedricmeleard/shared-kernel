@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <PackageId>SharedKernel.Results</PackageId>
+        <Description>Functional Result pattern and Railway-Oriented Programming (ROP) combinators.</Description>
+    </PropertyGroup>
+
+</Project>

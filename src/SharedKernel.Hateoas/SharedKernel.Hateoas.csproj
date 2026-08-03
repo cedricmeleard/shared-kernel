@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <PackageId>SharedKernel.Hateoas</PackageId>
+        <Description>Hypermedia models and extension methods for REST HATEOAS API resources.</Description>
+    </PropertyGroup>
+
+</Project>

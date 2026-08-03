@@ -1,0 +1,15 @@
+<Solution>
+    <Folder Name="/Solution Items/">
+        <File Path=".gitignore"/>
+        <File Path="Directory.Build.props"/>
+        <File Path="Directory.Packages.props"/>
+        <File Path="global.json"/>
+        <File Path="README.md"/>
+    </Folder>
+    <Folder Name="/src/">
+        <Project Path="src/SharedKernel.Authentication/SharedKernel.Authentication.csproj"/>
+        <Project Path="src/SharedKernel.Hateoas/SharedKernel.Hateoas.csproj"/>
+        <Project Path="src/SharedKernel.Messaging/SharedKernel.Messaging.csproj"/>
+        <Project Path="src/SharedKernel.Results/SharedKernel.Results.csproj"/>
+    </Folder>
+</Solution>
