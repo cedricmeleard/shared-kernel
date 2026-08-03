@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <IsPackable>false</IsPackable>
+        <IsTestProject>true</IsTestProject>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="FluentAssertions"/>
+        <PackageReference Include="Microsoft.NET.Test.Sdk"/>
+        <PackageReference Include="xunit"/>
+        <PackageReference Include="xunit.runner.visualstudio">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\SharedKernel.Authentication\SharedKernel.Authentication.csproj"/>
+        <ProjectReference Include="..\..\src\SharedKernel.Hateoas\SharedKernel.Hateoas.csproj"/>
+        <ProjectReference Include="..\..\src\SharedKernel.Messaging\SharedKernel.Messaging.csproj"/>
+        <ProjectReference Include="..\..\src\SharedKernel.Results\SharedKernel.Results.csproj"/>
+    </ItemGroup>
+
+</Project>
