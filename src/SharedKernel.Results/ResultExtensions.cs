@@ -1,4 +1,4 @@
-namespace Results;
+namespace SharedKernel.Results;
 
 public static class ResultExtensions
 {

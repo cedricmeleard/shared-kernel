@@ -1,6 +1,6 @@
 using FluentAssertions;
-using Hateoas.Extensions;
-using Hateoas.Models;
+using SharedKernel.Hateoas.Extensions;
+using SharedKernel.Hateoas.Models;
 using Xunit;
 
 namespace SharedKernel.UnitTests.Hateoas;

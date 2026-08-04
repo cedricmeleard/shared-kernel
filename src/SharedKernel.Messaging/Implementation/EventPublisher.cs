@@ -1,7 +1,7 @@
 using MediatR;
-using Messaging.Abstractions.Events;
+using SharedKernel.Messaging.Abstractions.Events;
 
-namespace Messaging.Implementation;
+namespace SharedKernel.Messaging.Implementation;
 
 public sealed class EventPublisher(IPublisher publisher) : IEventPublisher
 {

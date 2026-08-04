@@ -1,13 +1,13 @@
 using System.Reflection;
-using Messaging.Abstractions;
-using Messaging.Abstractions.Events;
-using Messaging.Abstractions.Integration;
-using Messaging.Behaviors;
-using Messaging.Implementation;
-using Messaging.Implementation.Integration;
 using Microsoft.Extensions.DependencyInjection;
+using SharedKernel.Messaging.Abstractions;
+using SharedKernel.Messaging.Abstractions.Events;
+using SharedKernel.Messaging.Abstractions.Integration;
+using SharedKernel.Messaging.Behaviors;
+using SharedKernel.Messaging.Implementation;
+using SharedKernel.Messaging.Implementation.Integration;
 
-namespace Messaging;
+namespace SharedKernel.Messaging;
 
 public static class DependencyInjection
 {

@@ -1,6 +1,6 @@
-using Hateoas.Models;
+using SharedKernel.Hateoas.Models;
 
-namespace Hateoas.Extensions;
+namespace SharedKernel.Hateoas.Extensions;
 
 public static class ResourceExtensions
 {

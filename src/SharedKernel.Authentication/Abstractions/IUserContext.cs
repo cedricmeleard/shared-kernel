@@ -1,4 +1,4 @@
-namespace Authentication.Abstractions;
+namespace SharedKernel.Authentication.Abstractions;
 
 public interface IUserContext
 {

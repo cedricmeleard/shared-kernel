@@ -1,4 +1,4 @@
-namespace Hateoas.Models;
+namespace SharedKernel.Hateoas.Models;
 
 public record ResourceResponse<T>(T Data, IReadOnlyList<Link> Links);
 

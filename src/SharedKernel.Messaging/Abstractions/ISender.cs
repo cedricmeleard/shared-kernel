@@ -1,8 +1,8 @@
-using Messaging.Abstractions.Commands;
-using Messaging.Abstractions.Queries;
-using Results;
+using SharedKernel.Messaging.Abstractions.Commands;
+using SharedKernel.Messaging.Abstractions.Queries;
+using SharedKernel.Results;
 
-namespace Messaging.Abstractions;
+namespace SharedKernel.Messaging.Abstractions;
 
 public interface ISender
 {

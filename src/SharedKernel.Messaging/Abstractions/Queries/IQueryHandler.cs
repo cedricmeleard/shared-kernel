@@ -1,7 +1,7 @@
 using MediatR;
-using Results;
+using SharedKernel.Results;
 
-namespace Messaging.Abstractions.Queries;
+namespace SharedKernel.Messaging.Abstractions.Queries;
 
 public interface IQueryHandler<TQuery, TResponse> : IRequestHandler<TQuery, Result<TResponse>>
     where TQuery : IQuery<TResponse>

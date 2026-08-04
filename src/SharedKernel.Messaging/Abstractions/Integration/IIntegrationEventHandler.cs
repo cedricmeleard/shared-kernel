@@ -1,4 +1,4 @@
-namespace Messaging.Abstractions.Integration;
+namespace SharedKernel.Messaging.Abstractions.Integration;
 
 public interface IIntegrationEventHandler<in TIntegrationEvent>
     where TIntegrationEvent : IIntegrationEvent

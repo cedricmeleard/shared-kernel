@@ -1,5 +1,5 @@
 using FluentAssertions;
-using Results;
+using SharedKernel.Results;
 using Xunit;
 
 namespace SharedKernel.UnitTests.Results;

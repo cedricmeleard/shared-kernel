@@ -1,7 +1,7 @@
 using System.Threading.Channels;
-using Messaging.Abstractions.Integration;
+using SharedKernel.Messaging.Abstractions.Integration;
 
-namespace Messaging.Implementation.Integration;
+namespace SharedKernel.Messaging.Implementation.Integration;
 
 public sealed class InMemoryMessageBus : IMessageBus
 {

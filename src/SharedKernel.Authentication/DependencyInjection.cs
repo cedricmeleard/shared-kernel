@@ -1,10 +1,10 @@
-using Authentication.Abstractions;
-using Authentication.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SharedKernel.Authentication.Abstractions;
+using SharedKernel.Authentication.Options;
 
-namespace Authentication;
+namespace SharedKernel.Authentication;
 
 public static class DependencyInjection
 {

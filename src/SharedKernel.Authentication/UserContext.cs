@@ -1,8 +1,8 @@
 using System.Security.Claims;
-using Authentication.Abstractions;
 using Microsoft.AspNetCore.Http;
+using SharedKernel.Authentication.Abstractions;
 
-namespace Authentication;
+namespace SharedKernel.Authentication;
 
 internal sealed class UserContext(IHttpContextAccessor httpContextAccessor) : IUserContext
 {

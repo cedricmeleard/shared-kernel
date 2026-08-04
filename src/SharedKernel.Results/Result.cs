@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace Results;
+namespace SharedKernel.Results;
 
 public class Result
 {

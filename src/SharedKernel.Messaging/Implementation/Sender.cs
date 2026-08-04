@@ -1,9 +1,9 @@
 using MediatR;
-using Messaging.Abstractions.Commands;
-using Messaging.Abstractions.Queries;
-using Results;
+using SharedKernel.Messaging.Abstractions.Commands;
+using SharedKernel.Messaging.Abstractions.Queries;
+using SharedKernel.Results;
 
-namespace Messaging.Implementation;
+namespace SharedKernel.Messaging.Implementation;
 
 public sealed class Sender(ISender mediatorSender) : Abstractions.ISender
 {

@@ -1,4 +1,4 @@
-namespace Authentication.Options;
+namespace SharedKernel.Authentication.Options;
 
 public sealed class AuthenticationOptions
 {

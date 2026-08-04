@@ -1,10 +1,9 @@
-using System.Reflection;
-using Messaging.Abstractions.Integration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using SharedKernel.Messaging.Abstractions.Integration;
 
-namespace Messaging.Implementation.Integration;
+namespace SharedKernel.Messaging.Implementation.Integration;
 
 public sealed class ChannelMessageBusHostedService(
     InMemoryMessageBus messageBus,

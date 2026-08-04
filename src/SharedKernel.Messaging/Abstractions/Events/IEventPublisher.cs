@@ -1,4 +1,4 @@
-namespace Messaging.Abstractions.Events;
+namespace SharedKernel.Messaging.Abstractions.Events;
 
 public interface IEventPublisher
 {

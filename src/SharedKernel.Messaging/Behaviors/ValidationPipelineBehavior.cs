@@ -1,8 +1,8 @@
 using FluentValidation;
 using MediatR;
-using Results;
+using SharedKernel.Results;
 
-namespace Messaging.Behaviors;
+namespace SharedKernel.Messaging.Behaviors;
 
 public class ValidationPipelineBehavior<TRequest, TResponse>(
     IEnumerable<IValidator<TRequest>> validators) : IPipelineBehavior<TRequest, TResponse>

@@ -1,6 +1,6 @@
 using FluentAssertions;
-using Messaging.Abstractions.Integration;
-using Messaging.Implementation.Integration;
+using SharedKernel.Messaging.Abstractions.Integration;
+using SharedKernel.Messaging.Implementation.Integration;
 using Xunit;
 
 namespace SharedKernel.UnitTests.Messaging;
