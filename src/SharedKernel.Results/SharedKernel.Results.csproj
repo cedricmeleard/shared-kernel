@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <PackageId>SharedKernel.Results</PackageId>
-        <Description>Functional Result pattern and Railway-Oriented Programming (ROP) combinators.</Description>
+        <Description>Functional Result pattern built on C# 15 union types and Railway-Oriented Programming (ROP) combinators.</Description>
     </PropertyGroup>
 
 </Project>

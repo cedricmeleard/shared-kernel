@@ -7,7 +7,7 @@ namespace SharedKernel.Messaging.Behaviors;
 public class ValidationPipelineBehavior<TRequest, TResponse>(
     IEnumerable<IValidator<TRequest>> validators) : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
-    where TResponse : Result
+    where TResponse : IResult<TResponse>
 {
     public async Task<TResponse> Handle(
         TRequest request,
@@ -35,18 +35,6 @@ public class ValidationPipelineBehavior<TRequest, TResponse>(
         }
 
         var error = new Error("Validation.Error", failures.First().ErrorMessage);
-
-        if (typeof(TResponse) == typeof(Result))
-        {
-            return (TResponse)(object)Result.Failure(error);
-        }
-
-        var genericType = typeof(TResponse).GetGenericArguments()[0];
-        var failureMethod = typeof(Result)
-            .GetMethods()
-            .First(m => m.Name == nameof(Result.Failure) && m.IsGenericMethod)
-            .MakeGenericMethod(genericType);
-
-        return (TResponse)failureMethod.Invoke(null, [error])!;
+        return TResponse.Failure(error);
     }
 }

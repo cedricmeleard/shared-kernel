@@ -2,185 +2,200 @@ namespace SharedKernel.Results;
 
 public static class ResultExtensions
 {
-    #region Match Overloads
+    #region Bind
 
-    public static async Task<TOut> Match<TOut>(
-        this Task<Result> resultTask,
-        Func<TOut> onSuccess,
-        Func<Error, TOut> onFailure)
-    {
-        var result = await resultTask;
-        return result.Match(onSuccess, onFailure);
-    }
+    public static Result Bind(this Result result, Func<Result> next) =>
+        result switch
+        {
+            Success => next(),
+            Error error => error,
+            _ => throw new InvalidOperationException("Result is in an uninitialized state.")
+        };
 
-    public static async Task<TOut> Match<TOut>(
-        this Task<Result> resultTask,
-        Func<Task<TOut>> onSuccess,
-        Func<Error, Task<TOut>> onFailure)
-    {
-        var result = await resultTask;
-        return result.IsSuccess ? await onSuccess() : await onFailure(result.Error);
-    }
+    public static Result<TOut> Bind<TOut>(this Result result, Func<Result<TOut>> next) =>
+        result switch
+        {
+            Success => next(),
+            Error error => error,
+            _ => throw new InvalidOperationException("Result is in an uninitialized state.")
+        };
 
-    public static async Task<TOut> Match<TIn, TOut>(
-        this Task<Result<TIn>> resultTask,
-        Func<TIn, TOut> onSuccess,
-        Func<Error, TOut> onFailure)
-    {
-        var result = await resultTask;
-        return result.Match(onSuccess, onFailure);
-    }
+    public static Task<Result> Bind(this Result result, Func<Task<Result>> next) =>
+        result switch
+        {
+            Success => next(),
+            Error error => Task.FromResult<Result>(error),
+            _ => throw new InvalidOperationException("Result is in an uninitialized state.")
+        };
 
-    public static async Task<TOut> Match<TIn, TOut>(
-        this Task<Result<TIn>> resultTask,
-        Func<TIn, Task<TOut>> onSuccess,
-        Func<Error, Task<TOut>> onFailure)
-    {
-        var result = await resultTask;
-        return result.IsSuccess ? await onSuccess(result.Value) : await onFailure(result.Error);
-    }
+    public static Task<Result<TOut>> Bind<TOut>(this Result result, Func<Task<Result<TOut>>> next) =>
+        result switch
+        {
+            Success => next(),
+            Error error => Task.FromResult<Result<TOut>>(error),
+            _ => throw new InvalidOperationException("Result is in an uninitialized state.")
+        };
 
-    public static async Task<TOut> Match<TIn, TOut>(
-        this Result<TIn> result,
-        Func<TIn, Task<TOut>> onSuccess,
-        Func<Error, Task<TOut>> onFailure) =>
-        result.IsSuccess ? await onSuccess(result.Value) : await onFailure(result.Error);
+    public static async Task<Result> Bind(this Task<Result> resultTask, Func<Result> next) =>
+        (await resultTask).Bind(next);
 
-    #endregion
+    public static async Task<Result> Bind(this Task<Result> resultTask, Func<Task<Result>> next) =>
+        await (await resultTask).Bind(next);
 
-    #region Bind Overloads
+    public static async Task<Result<TOut>> Bind<TOut>(this Task<Result> resultTask, Func<Result<TOut>> next) =>
+        (await resultTask).Bind(next);
+
+    public static async Task<Result<TOut>> Bind<TOut>(this Task<Result> resultTask, Func<Task<Result<TOut>>> next) =>
+        await (await resultTask).Bind(next);
+
+    public static Result<TOut> Bind<TIn, TOut>(this Result<TIn> result, Func<TIn, Result<TOut>> next) =>
+        result switch
+        {
+            Success<TIn>(var value) => next(value),
+            Error error => error,
+            _ => throw new InvalidOperationException("Result is in an uninitialized state.")
+        };
+
+    public static Result Bind<TIn>(this Result<TIn> result, Func<TIn, Result> next) =>
+        result switch
+        {
+            Success<TIn>(var value) => next(value),
+            Error error => error,
+            _ => throw new InvalidOperationException("Result is in an uninitialized state.")
+        };
+
+    public static Task<Result<TOut>> Bind<TIn, TOut>(this Result<TIn> result, Func<TIn, Task<Result<TOut>>> next) =>
+        result switch
+        {
+            Success<TIn>(var value) => next(value),
+            Error error => Task.FromResult<Result<TOut>>(error),
+            _ => throw new InvalidOperationException("Result is in an uninitialized state.")
+        };
+
+    public static Task<Result> Bind<TIn>(this Result<TIn> result, Func<TIn, Task<Result>> next) =>
+        result switch
+        {
+            Success<TIn>(var value) => next(value),
+            Error error => Task.FromResult<Result>(error),
+            _ => throw new InvalidOperationException("Result is in an uninitialized state.")
+        };
 
     public static async Task<Result<TOut>> Bind<TIn, TOut>(
-        this Result<TIn> result,
+        this Task<Result<TIn>> resultTask,
+        Func<TIn, Result<TOut>> next) =>
+        (await resultTask).Bind(next);
+
+    public static async Task<Result<TOut>> Bind<TIn, TOut>(
+        this Task<Result<TIn>> resultTask,
         Func<TIn, Task<Result<TOut>>> next) =>
-        result.IsSuccess ? await next(result.Value) : Result.Failure<TOut>(result.Error);
+        await (await resultTask).Bind(next);
 
     public static async Task<Result> Bind<TIn>(
-        this Result<TIn> result,
+        this Task<Result<TIn>> resultTask,
+        Func<TIn, Result> next) =>
+        (await resultTask).Bind(next);
+
+    public static async Task<Result> Bind<TIn>(
+        this Task<Result<TIn>> resultTask,
         Func<TIn, Task<Result>> next) =>
-        result.IsSuccess ? await next(result.Value) : Result.Failure(result.Error);
-
-    public static async Task<Result<TOut>> Bind<TIn, TOut>(
-        this Task<Result<TIn>> resultTask,
-        Func<TIn, Task<Result<TOut>>> next)
-    {
-        var result = await resultTask;
-        return result.IsSuccess ? await next(result.Value) : Result.Failure<TOut>(result.Error);
-    }
-
-    public static async Task<Result<TOut>> Bind<TIn, TOut>(
-        this Task<Result<TIn>> resultTask,
-        Func<TIn, Result<TOut>> next)
-    {
-        var result = await resultTask;
-        return result.Bind(next);
-    }
-
-    public static async Task<Result> Bind<TIn>(
-        this Task<Result<TIn>> resultTask,
-        Func<TIn, Task<Result>> next)
-    {
-        var result = await resultTask;
-        return result.IsSuccess ? await next(result.Value) : Result.Failure(result.Error);
-    }
-
-    public static async Task<Result> Bind<TIn>(
-        this Task<Result<TIn>> resultTask,
-        Func<TIn, Result> next)
-    {
-        var result = await resultTask;
-        return result.Bind(next);
-    }
+        await (await resultTask).Bind(next);
 
     #endregion
 
-    #region Map Overloads
+    #region Map
+
+    public static Result<TOut> Map<TIn, TOut>(this Result<TIn> result, Func<TIn, TOut> mapper) =>
+        result switch
+        {
+            Success<TIn>(var value) => Result.Success(mapper(value)),
+            Error error => error,
+            _ => throw new InvalidOperationException("Result is in an uninitialized state.")
+        };
 
     public static async Task<Result<TOut>> Map<TIn, TOut>(
         this Result<TIn> result,
         Func<TIn, Task<TOut>> mapper) =>
-        result.IsSuccess ? Result.Success(await mapper(result.Value)) : Result.Failure<TOut>(result.Error);
+        result switch
+        {
+            Success<TIn>(var value) => Result.Success(await mapper(value)),
+            Error error => error,
+            _ => throw new InvalidOperationException("Result is in an uninitialized state.")
+        };
 
     public static async Task<Result<TOut>> Map<TIn, TOut>(
         this Task<Result<TIn>> resultTask,
-        Func<TIn, TOut> mapper)
-    {
-        var result = await resultTask;
-        return result.Map(mapper);
-    }
+        Func<TIn, TOut> mapper) =>
+        (await resultTask).Map(mapper);
 
     public static async Task<Result<TOut>> Map<TIn, TOut>(
         this Task<Result<TIn>> resultTask,
-        Func<TIn, Task<TOut>> mapper)
-    {
-        var result = await resultTask;
-        return result.IsSuccess ? Result.Success(await mapper(result.Value)) : Result.Failure<TOut>(result.Error);
-    }
+        Func<TIn, Task<TOut>> mapper) =>
+        await (await resultTask).Map(mapper);
 
     #endregion
 
-    #region Tap Overloads
+    #region Tap
 
-    public static async Task<Result<TIn>> Tap<TIn>(
-        this Result<TIn> result,
-        Func<TIn, Task> action)
+    public static Result<TIn> Tap<TIn>(this Result<TIn> result, Action<TIn> action)
     {
-        if (result.IsSuccess) await action(result.Value);
+        if (result is Success<TIn>(var value))
+            action(value);
+        else if (result is not Error)
+            throw new InvalidOperationException("Result is in an uninitialized state.");
 
         return result;
     }
 
-    public static async Task<Result<TIn>> Tap<TIn>(
-        this Task<Result<TIn>> resultTask,
-        Action<TIn> action)
+    public static async Task<Result<TIn>> Tap<TIn>(this Result<TIn> result, Func<TIn, Task> action)
     {
-        var result = await resultTask;
-        return result.Tap(action);
-    }
-
-    public static async Task<Result<TIn>> Tap<TIn>(
-        this Task<Result<TIn>> resultTask,
-        Func<TIn, Task> action)
-    {
-        var result = await resultTask;
-        if (result.IsSuccess) await action(result.Value);
+        if (result is Success<TIn>(var value))
+            await action(value);
+        else if (result is not Error)
+            throw new InvalidOperationException("Result is in an uninitialized state.");
 
         return result;
     }
 
+    public static async Task<Result<TIn>> Tap<TIn>(this Task<Result<TIn>> resultTask, Action<TIn> action) =>
+        (await resultTask).Tap(action);
+
+    public static async Task<Result<TIn>> Tap<TIn>(this Task<Result<TIn>> resultTask, Func<TIn, Task> action) =>
+        await (await resultTask).Tap(action);
+
     #endregion
 
-    #region Ensure Overloads
+    #region Ensure
+
+    public static Result<TIn> Ensure<TIn>(this Result<TIn> result, Func<TIn, bool> predicate, Error error) =>
+        result switch
+        {
+            Success<TIn>(var value) => predicate(value) ? result : error,
+            Error => result,
+            _ => throw new InvalidOperationException("Result is in an uninitialized state.")
+        };
 
     public static async Task<Result<TIn>> Ensure<TIn>(
         this Result<TIn> result,
         Func<TIn, Task<bool>> predicate,
-        Error error)
-    {
-        if (result.IsFailure) return result;
-
-        return await predicate(result.Value) ? result : Result.Failure<TIn>(error);
-    }
+        Error error) =>
+        result switch
+        {
+            Success<TIn>(var value) => await predicate(value) ? result : error,
+            Error => result,
+            _ => throw new InvalidOperationException("Result is in an uninitialized state.")
+        };
 
     public static async Task<Result<TIn>> Ensure<TIn>(
         this Task<Result<TIn>> resultTask,
-        Predicate<TIn> predicate,
-        Error error)
-    {
-        var result = await resultTask;
-        return result.Ensure(predicate, error);
-    }
+        Func<TIn, bool> predicate,
+        Error error) =>
+        (await resultTask).Ensure(predicate, error);
 
     public static async Task<Result<TIn>> Ensure<TIn>(
         this Task<Result<TIn>> resultTask,
         Func<TIn, Task<bool>> predicate,
-        Error error)
-    {
-        var result = await resultTask;
-        if (result.IsFailure) return result;
-
-        return await predicate(result.Value) ? result : Result.Failure<TIn>(error);
-    }
+        Error error) =>
+        await (await resultTask).Ensure(predicate, error);
 
     #endregion
 }

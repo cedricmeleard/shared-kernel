@@ -1,19 +1,19 @@
 # SharedKernel.Results
 
-`SharedKernel.Results` is a lightweight, zero-dependency .NET 10 library providing a functional `Result` and `Result<TValue>` pattern along with Railway-Oriented Programming (ROP) combinators for explicit error handling without throwing costly exceptions.
+`SharedKernel.Results` is a lightweight, zero-dependency .NET 11 library providing a functional `Result` and `Result<TValue>` pattern built on C# 15 `union` types (`Success`, `Success<TValue>`, `Error`) along with Railway-Oriented Programming (ROP) combinators for explicit error handling without throwing costly exceptions.
 
 ---
 
 ## 🚀 Features
 
-- **`Result` & `Result<TValue>`**: Explicit success (`Result.Success()`, `Result.Success(value)`) or failure (`Result.Failure(error)`) types.
+- **`Result` & `Result<TValue>` Unions**: C# 15 `union` types (`Result(Success, Error)` and `Result<TValue>(Success<TValue>, Error)`) supporting exhaustive `switch` expressions, implicit `Error` conversion, and `IResult<TSelf>`.
 - **`Error` Record**: Structural representation of errors containing `Code` and `Name`.
 - **Railway-Oriented Programming (ROP) Combinators**:
-  - **`Match`**: Branch execution based on success or failure.
   - **`Bind`**: Chain operations returning a `Result`.
   - **`Map`**: Transform success values.
   - **`Tap`**: Execute side-effects on success without altering the result.
   - **`Ensure`**: Validate predicates on success values.
+  - **Native `switch` expression**: Exhaustive pattern matching at the end of a pipeline (`Success<T>` / `Error`).
 
 ---
 
@@ -22,7 +22,7 @@
 ### 1. Returning Results from Domain Logic
 
 ```csharp
-using Results;
+using SharedKernel.Results;
 
 public class BankAccount
 {
@@ -32,12 +32,12 @@ public class BankAccount
     {
         if (amount <= 0)
         {
-            return Result.Failure(new Error("Amount.Invalid", "Withdrawal amount must be greater than zero."));
+            return new Error("Amount.Invalid", "Withdrawal amount must be greater than zero.");
         }
 
         if (amount > Balance)
         {
-            return Result.Failure(new Error("Balance.Insufficient", "Insufficient funds for withdrawal."));
+            return new Error("Balance.Insufficient", "Insufficient funds for withdrawal.");
         }
 
         Balance -= amount;
@@ -54,9 +54,10 @@ public async Task<IResult> ProcessOrderAsync(OrderRequest request)
     return await ValidateRequest(request)
         .Bind(req => CalculateTotal(req))
         .Tap(order => logger.LogInformation("Order total calculated: {Total}", order.Total))
-        .Ensure(order => order.Total > 0, new Error("Order.InvalidTotal", "Order total must be positive"))
-        .Match(
-            successOrder => TypedResults.Ok(successOrder),
-            error => error.ToProblemDetails());
+        .Ensure(order => order.Total > 0, new Error("Order.InvalidTotal", "Order total must be positive")) switch
+    {
+        Success<Order>(var order) => TypedResults.Ok(order),
+        Error error => error.ToProblemDetails()
+    };
 }
 ```

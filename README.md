@@ -1,10 +1,10 @@
 # SharedKernel
 
-Reusable .NET 10 Shared Kernel building blocks.
+Reusable .NET 11 Shared Kernel building blocks.
 
 ## 📦 Published Packages
 
-- **`SharedKernel.Results`**: Functional `Result` / `Result<TValue>` pattern + Railway-Oriented Programming (ROP) combinators (`Match`, `Bind`, `Map`, `Tap`, `Ensure`).
+- **`SharedKernel.Results`**: Functional `Result` / `Result<TValue>` C# 15 `union` types + Railway-Oriented Programming (ROP) combinators (`Bind`, `Map`, `Tap`, `Ensure`) + exhaustive `switch` pattern matching.
 - **`SharedKernel.Messaging`**: CQRS abstractions (`ICommand`, `IQuery`), Domain Events (`IDomainEvent`), MediatR `ValidationPipelineBehavior`, and Async Integration Message Bus (`IMessageBus`, `IIntegrationEvent`, `InMemoryMessageBus`).
 - **`SharedKernel.Hateoas`**: Hypermedia models (`ResourceResponse<T>`, `CollectionResourceResponse<T>`, `Link`) and REST resource extensions.
 - **`SharedKernel.Authentication`**: Vendor-agnostic `IUserContext` abstraction and JWT Bearer security integration (`AddJwtAuthentication`).
