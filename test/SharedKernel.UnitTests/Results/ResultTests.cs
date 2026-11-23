@@ -33,6 +33,16 @@ public class ResultTests
     }
 
     [Fact]
+    public void Failure_Should_Throw_WhenErrorIsNone()
+    {
+        // Act
+        var act = () => Result.Failure(Error.None);
+
+        // Assert
+        act.Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
     public void SuccessT_Should_ContainValue()
     {
         // Act
@@ -40,7 +50,89 @@ public class ResultTests
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        result.Value.Should().Be(42);
+        result.GetValueOrThrow().Should().Be(42);
+        result.TryGetValue(out var value).Should().BeTrue();
+        value.Should().Be(42);
+    }
+
+    [Fact]
+    public void FailureT_Should_ThrowOnGetValueOrThrow_AndReturnFalseOnTryGetValue()
+    {
+        // Act
+        var result = Result.Failure<int>(TestError);
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().Be(TestError);
+        result.TryGetValue(out var value).Should().BeFalse();
+        value.Should().Be(default);
+
+        var act = () => result.GetValueOrThrow();
+        act.Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
+    public void ImplicitConversions_Should_WorkForErrorAndValue()
+    {
+        // Act
+        Result nonGenericError = TestError;
+        Result<int> genericError = TestError;
+        Result<string> genericValue = "hello";
+        Result<string> nullValue = (string?)null;
+
+        // Assert
+        nonGenericError.IsFailure.Should().BeTrue();
+        nonGenericError.Error.Should().Be(TestError);
+        genericError.IsFailure.Should().BeTrue();
+        genericError.Error.Should().Be(TestError);
+        genericValue.IsSuccess.Should().BeTrue();
+        genericValue.GetValueOrThrow().Should().Be("hello");
+        nullValue.IsFailure.Should().BeTrue();
+        nullValue.Error.Should().Be(Error.NullValue);
+    }
+
+    [Fact]
+    public void UnionSwitchExpression_Should_MatchExhaustively()
+    {
+        // Arrange
+        Result nonGeneric = Result.Success();
+        Result<int> success = Result.Success(42);
+        Result<int> failure = TestError;
+
+        // Act
+        var nonGenericText = nonGeneric switch
+        {
+            Success => "ok",
+            Error e => e.Code
+        };
+
+        var successText = success switch
+        {
+            Success<int>(var val) => $"ok:{val}",
+            Error e => e.Code
+        };
+
+        var failureText = failure switch
+        {
+            Success<int>(var val) => $"ok:{val}",
+            Error e => e.Code
+        };
+
+        // Assert
+        nonGenericText.Should().Be("ok");
+        successText.Should().Be("ok:42");
+        failureText.Should().Be(TestError.Code);
+    }
+
+    [Fact]
+    public void Equality_Should_CompareUnionCasesStructurally()
+    {
+        Result.Success().Should().Be(Result.Success());
+        Result.Failure(TestError).Should().Be(Result.Failure(new Error("Test.Error", "Test error message")));
+        Result.Success(42).Should().Be(Result.Success(42));
+        Result.Success(42).Should().NotBe(Result.Success(99));
+        (Result.Success(42) == Result.Success(42)).Should().BeTrue();
+        (Result.Success(42) != Result.Failure<int>(TestError)).Should().BeTrue();
     }
 
     [Fact]
@@ -99,7 +191,7 @@ public class ResultTests
 
         // Assert
         bound.IsSuccess.Should().BeTrue();
-        bound.Value.Should().Be(10);
+        bound.GetValueOrThrow().Should().Be(10);
     }
 
     [Fact]
@@ -117,6 +209,31 @@ public class ResultTests
     }
 
     [Fact]
+    public async Task NonGenericResult_AsyncRopPipeline_Should_ChainCleanly()
+    {
+        // Arrange
+        var tapped = false;
+
+        // Act
+        var output = await Task.FromResult(Result.Success())
+            .Tap(() =>
+            {
+                tapped = true;
+                return Task.CompletedTask;
+            })
+            .Ensure(() => Task.FromResult(true), TestError)
+            .Bind(() => Task.FromResult(Result.Success(21)))
+            .Map(val => val * 2)
+            .Match(
+                val => $"Done:{val}",
+                err => err.Code);
+
+        // Assert
+        tapped.Should().BeTrue();
+        output.Should().Be("Done:42");
+    }
+
+    [Fact]
     public void Map_Should_TransformValue_WhenSuccess()
     {
         // Arrange
@@ -127,7 +244,7 @@ public class ResultTests
 
         // Assert
         mapped.IsSuccess.Should().BeTrue();
-        mapped.Value.Should().Be("HELLO");
+        mapped.GetValueOrThrow().Should().Be("HELLO");
     }
 
     [Fact]
@@ -142,6 +259,43 @@ public class ResultTests
         // Assert
         ensured.IsFailure.Should().BeTrue();
         ensured.Error.Should().Be(TestError);
+    }
+
+    [Fact]
+    public async Task GenericResult_AsyncLambdasOnSyncResult_Should_ResolveToAsyncOverloads()
+    {
+        // Arrange
+        var tapped = false;
+        var initial = Result.Success(10);
+
+        // Act
+        var output = await initial
+            .Tap(async _ =>
+            {
+                await Task.Yield();
+                tapped = true;
+            })
+            .Ensure(async val =>
+            {
+                await Task.Yield();
+                return val > 5;
+            }, TestError)
+            .Map(async val =>
+            {
+                await Task.Yield();
+                return val * 3;
+            })
+            .Match(
+                async val =>
+                {
+                    await Task.Yield();
+                    return $"Async:{val}";
+                },
+                err => Task.FromResult(err.Code));
+
+        // Assert
+        tapped.Should().BeTrue();
+        output.Should().Be("Async:30");
     }
 
     [Fact]

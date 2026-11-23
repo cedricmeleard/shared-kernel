@@ -17,7 +17,7 @@ dotnet pack SharedKernel.slnx --configuration Release --output ./nupkgs
 
 ## Architecture & Project Structure
 
-This repository provides reusable, zero-dependency or lightweight .NET 10 building blocks shared across .NET domain applications.
+This repository provides reusable, zero-dependency or lightweight .NET 11 building blocks shared across .NET domain applications.
 
 ```text
 shared-kernel/
@@ -30,13 +30,13 @@ shared-kernel/
 │   └── SharedKernel.UnitTests/       # xUnit + FluentAssertions unit tests for all shared libraries
 ├── .github/workflows/
 │   └── publish.yml                   # CI/CD workflow publishing NuGet packages to GitHub Packages
-└── SharedKernel.slnx                 # .NET 10 Solution file
+└── SharedKernel.slnx                 # .NET 11 Solution file
 ```
 
 ## Package Descriptions & Design Guidelines
 
 1. **`SharedKernel.Results`**:
-   - Pure C# functional `Result` and `Result<TValue>` pattern.
+   - Pure C# 15 `union` `Result` and `Result<TValue>` pattern (`Success`, `Success<TValue>`, `Error`) implementing `IResult<TSelf>`.
    - Railway-Oriented Programming (ROP) combinators: `Match`, `Bind`, `Map`, `Tap`, `Ensure`.
    - **No `Async` suffixes on method names**: Overload synchronous and asynchronous delegates (`.Match(...)`, `.Bind(...)`, `.Map(...)`, `.Tap(...)`).
 
@@ -56,6 +56,6 @@ shared-kernel/
 
 ## Coding Rules & Conventions
 
-- All projects target `net10.0` with `<ImplicitUsings>enable</ImplicitUsings>` and `<Nullable>enable</Nullable>`.
+- All projects target `net11.0` with `<ImplicitUsings>enable</ImplicitUsings>` and `<Nullable>enable</Nullable>`.
 - Versioning is automated via GitHub Actions using SemVer. Include `semver:major`, `semver:minor`, or `semver:patch` in commit messages when pushing to `main` to control release version bumps.
 - Always run `dotnet test SharedKernel.slnx` before committing changes.
