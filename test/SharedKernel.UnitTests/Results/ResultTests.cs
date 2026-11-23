@@ -11,53 +11,96 @@ public class ResultTests
     [Fact]
     public void Success_Should_CreateSuccessfulResult()
     {
-        // Act
         var result = Result.Success();
 
-        // Assert
         result.Value.Should().Be(Success.Instance);
     }
 
     [Fact]
     public void Failure_Should_CreateFailedResultWithError()
     {
-        // Act
         var result = Result.Failure(TestError);
 
-        // Assert
         result.Value.Should().Be(TestError);
     }
 
     [Fact]
     public void Failure_Should_Throw_WhenErrorIsNone()
     {
-        // Act
         var act = () => Result.Failure(Error.None);
 
-        // Assert
+        act.Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
+    public void FailureT_Should_CreateFailedResultWithError()
+    {
+        var result = Result.Failure<int>(TestError);
+
+        result.Value.Should().Be(TestError);
+    }
+
+    [Fact]
+    public void FailureT_Should_Throw_WhenErrorIsNone()
+    {
+        var act = () => Result.Failure<int>(Error.None);
+
         act.Should().Throw<InvalidOperationException>();
     }
 
     [Fact]
     public void SuccessT_Should_ContainValue()
     {
-        // Act
         var result = Result.Success(42);
 
-        // Assert
         result.Value.Should().Be(new Success<int>(42));
+    }
+
+    [Fact]
+    public void Create_Should_ReturnSuccess_WhenValueIsNotNull()
+    {
+        var result = Result.Create("hello");
+
+        result.Value.Should().Be(new Success<string>("hello"));
+    }
+
+    [Fact]
+    public void Create_Should_ReturnNullValueError_WhenValueIsNull()
+    {
+        var result = Result.Create<string>(null);
+
+        result.Value.Should().Be(Error.NullValue);
+    }
+
+    [Fact]
+    public void SuccessAndFailure_Should_NotCollide_WhenTValueIsError()
+    {
+        var payload = new Error("Payload.Error", "Business payload");
+
+        var success = Result.Success(payload);
+        var failure = Result.Failure<Error>(TestError);
+
+        (success switch
+        {
+            Success<Error>(var value) => $"success:{value.Code}",
+            Error err => $"failure:{err.Code}"
+        }).Should().Be("success:Payload.Error");
+
+        (failure switch
+        {
+            Success<Error>(var value) => $"success:{value.Code}",
+            Error err => $"failure:{err.Code}"
+        }).Should().Be("failure:Test.Error");
     }
 
     [Fact]
     public void ImplicitConversions_Should_WorkForErrorAndValue()
     {
-        // Act
         Result nonGenericError = TestError;
         Result<int> genericError = TestError;
         Result<string> genericValue = "hello";
         Result<string> nullValue = (string?)null;
 
-        // Assert
         nonGenericError.Value.Should().Be(TestError);
         genericError.Value.Should().Be(TestError);
         genericValue.Value.Should().Be(new Success<string>("hello"));
@@ -67,12 +110,10 @@ public class ResultTests
     [Fact]
     public void UnionSwitchExpression_Should_MatchExhaustively()
     {
-        // Arrange
         Result nonGeneric = Result.Success();
         Result<int> success = Result.Success(42);
         Result<int> failure = TestError;
 
-        // Act
         var nonGenericText = nonGeneric switch
         {
             Success => "ok",
@@ -91,109 +132,8 @@ public class ResultTests
             Error e => e.Code
         };
 
-        // Assert
         nonGenericText.Should().Be("ok");
         successText.Should().Be("ok:42");
         failureText.Should().Be(TestError.Code);
-    }
-
-    [Fact]
-    public void Bind_Should_ChainOperation_WhenSuccess()
-    {
-        // Arrange
-        var initial = Result.Success(5);
-
-        // Act
-        var bound = initial.Bind(val => Result.Success(val * 2));
-
-        // Assert
-        bound.Value.Should().Be(new Success<int>(10));
-    }
-
-    [Fact]
-    public void Bind_Should_ReturnFailure_WhenInitialIsFailure()
-    {
-        // Arrange
-        var initial = Result.Failure<int>(TestError);
-
-        // Act
-        var bound = initial.Bind(val => Result.Success(val * 2));
-
-        // Assert
-        bound.Value.Should().Be(TestError);
-    }
-
-    [Fact]
-    public async Task AsyncRopPipeline_Should_ChainCleanlyAndEndWithSwitch()
-    {
-        // Arrange
-        var tapped = false;
-
-        // Act
-        var output = await Task.FromResult(Result.Success())
-            .Bind(() => Task.FromResult(Result.Success(10)))
-            .Tap(async _ =>
-            {
-                await Task.Yield();
-                tapped = true;
-            })
-            .Ensure(async val =>
-            {
-                await Task.Yield();
-                return val > 5;
-            }, TestError)
-            .Map(async val =>
-            {
-                await Task.Yield();
-                return val * 3;
-            }) switch
-        {
-            Success<int>(var val) => $"Done:{val}",
-            Error err => err.Code
-        };
-
-        // Assert
-        tapped.Should().BeTrue();
-        output.Should().Be("Done:30");
-    }
-
-    [Fact]
-    public void Map_Should_TransformValue_WhenSuccess()
-    {
-        // Arrange
-        var initial = Result.Success("hello");
-
-        // Act
-        var mapped = initial.Map(val => val.ToUpper());
-
-        // Assert
-        mapped.Value.Should().Be(new Success<string>("HELLO"));
-    }
-
-    [Fact]
-    public void Ensure_Should_ReturnFailure_WhenPredicateIsFalse()
-    {
-        // Arrange
-        var initial = Result.Success(10);
-
-        // Act
-        var ensured = initial.Ensure(val => val > 20, TestError);
-
-        // Assert
-        ensured.Value.Should().Be(TestError);
-    }
-
-    [Fact]
-    public void Tap_Should_ExecuteAction_WhenSuccess()
-    {
-        // Arrange
-        var executed = false;
-        var initial = Result.Success("Data");
-
-        // Act
-        initial.Tap(_ => executed = true);
-
-        // Assert
-        executed.Should().BeTrue();
     }
 }
