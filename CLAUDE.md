@@ -37,8 +37,8 @@ shared-kernel/
 
 1. **`SharedKernel.Results`**:
    - Pure C# 15 `union` `Result` and `Result<TValue>` pattern (`Success`, `Success<TValue>`, `Error`) implementing `IResult<TSelf>`.
-   - Railway-Oriented Programming (ROP) combinators: `Match`, `Bind`, `Map`, `Tap`, `Ensure`.
-   - **No `Async` suffixes on method names**: Overload synchronous and asynchronous delegates (`.Match(...)`, `.Bind(...)`, `.Map(...)`, `.Tap(...)`).
+   - Railway-Oriented Programming (ROP) combinators: `Bind`, `Map`, `Tap`, `Ensure`, terminated by exhaustive `switch` pattern matching (`Success` / `Success<T>` / `Error`).
+   - **No `Async` suffixes on method names**: Overload synchronous and asynchronous delegates (`.Bind(...)`, `.Map(...)`, `.Tap(...)`, `.Ensure(...)`).
 
 2. **`SharedKernel.Messaging`**:
    - Decoupled CQRS abstractions: `ICommand`, `IQuery`, `ICommandHandler`, `IQueryHandler`, `ISender`.

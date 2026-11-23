@@ -41,9 +41,7 @@ public class ValidationPipelineBehaviorTests
 
         // Assert
         nextCalled.Should().BeFalse();
-        result.IsFailure.Should().BeTrue();
-        result.Error.Code.Should().Be("Validation.Error");
-        result.Error.Name.Should().Be("Name is required");
+        result.Value.Should().Be(new Error("Validation.Error", "Name is required"));
     }
 
     [Fact]
@@ -65,9 +63,7 @@ public class ValidationPipelineBehaviorTests
 
         // Assert
         nextCalled.Should().BeFalse();
-        result.IsFailure.Should().BeTrue();
-        result.Error.Code.Should().Be("Validation.Error");
-        result.Error.Name.Should().Be("Name is required");
+        result.Value.Should().Be(new Error("Validation.Error", "Name is required"));
     }
 
     [Fact]
@@ -83,7 +79,6 @@ public class ValidationPipelineBehaviorTests
             CancellationToken.None);
 
         // Assert
-        result.IsSuccess.Should().BeTrue();
-        result.GetValueOrThrow().Should().Be(123);
+        result.Value.Should().Be(new Success<int>(123));
     }
 }
